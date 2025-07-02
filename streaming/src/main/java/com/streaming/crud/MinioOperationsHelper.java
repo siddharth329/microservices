@@ -2,13 +2,11 @@ package com.streaming.crud;
 
 import com.streaming.exception.FileDeleteException;
 import com.streaming.exception.FileUploadException;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.apache.bcel.classfile.annotation.RuntimeInvisAnnos;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +44,18 @@ public class MinioOperationsHelper {
             minioClient.removeObject(removeObjectArgs);
         } catch (Exception e) {
             throw new FileDeleteException(e.getMessage());
+        }
+    }
+
+    public InputStream getObject(String bucketName, String objectName) {
+        try {
+            GetObjectArgs getObjectArgs = GetObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName).build();
+            return minioClient.getObject(getObjectArgs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

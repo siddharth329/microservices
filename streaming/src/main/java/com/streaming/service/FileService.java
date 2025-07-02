@@ -32,7 +32,13 @@ public class FileService {
     public File getFile(UUID id) {
         return fileRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("File not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("File not found with id: " + id));
+    }
+
+    public File getFileByPublicId(String publicId) {
+        return fileRepository
+                .findByPublicId(publicId)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found with publicId: " + publicId));
     }
 
     public void deleteFile(UUID id) {

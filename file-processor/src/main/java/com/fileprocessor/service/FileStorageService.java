@@ -28,14 +28,14 @@ public class FileStorageService {
                 .walk(Paths.get(directory))
                 .filter(Files::isRegularFile)
                 .forEach(file -> {
-                    try {
+                    try (FileInputStream fileInputStream =  new FileInputStream(file.toFile())) {
                         String fileName = file.getFileName().toString();
                         String s3UploadKey = outputPrefix + "/" + fileName;
-                        String contentType = FileUtils.getFileContentType(fileName);
 
-                        minioOperationsHelper.uploadInputStream("original", s3UploadKey, new FileInputStream(file.toFile()));
+                        minioOperationsHelper.uploadInputStream("original", s3UploadKey, fileInputStream);
+                        fileInputStream.close();
                         uploadedFiles.add(fileName);
-                    } catch (FileNotFoundException e) {
+                    } catch (IOException e) {
                         log.error("File not found", e);
                     }
                 });
