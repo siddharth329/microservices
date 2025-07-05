@@ -18,9 +18,31 @@ import java.util.UUID;
 @Table(name = "`FileProcessingQueue`")
 public class FileProcessingQueue {
     @Id @GeneratedValue private UUID id;
-    @OneToOne @JoinColumn(name = "fileId", unique = true) private File file;
+
+    // File Metadata
+    @Column(name = "fileId") private UUID fileId;
+    @Column(name = "publicId") private String publicId;
+    @Column(name = "bucketName") private String bucketName;
+    @Column(name = "fileName") private String fileName;
+
+    // Queue & Processor Metadata
     @Column(name = "status") @Enumerated(EnumType.STRING) private FileProcessingStatus  status;
     @Column(name = "instanceId") private String instanceId;
     @Column(name = "createdAt") @CreationTimestamp  private LocalDateTime createdAt;
     @Column(name = "updatedAt") @UpdateTimestamp private LocalDateTime updatedAt;
+
+    @Override
+    public String toString() {
+        return "FileProcessingQueue{" +
+                "id=" + id +
+                ", fileId=" + fileId +
+                ", publicId='" + publicId + '\'' +
+                ", bucketName='" + bucketName + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", status=" + status +
+                ", instanceId='" + instanceId + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

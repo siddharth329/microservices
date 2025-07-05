@@ -2,12 +2,8 @@ package com.fileprocessor.processor;
 
 import com.fileprocessor.config.DashStreamConfig;
 import com.fileprocessor.crud.MinioOperationsHelper;
-import com.fileprocessor.enums.FileProcessingStatus;
-import com.fileprocessor.enums.FileStatus;
-import com.fileprocessor.exception.ApiException;
 import com.fileprocessor.repository.FileRepository;
 import com.fileprocessor.response.DashGenerationResult;
-import com.fileprocessor.models.File;
 import com.fileprocessor.models.FileProcessingQueue;
 import com.fileprocessor.repository.FileProcessingQueueRepository;
 import com.fileprocessor.service.DashMPDGeneratorService;
@@ -22,10 +18,7 @@ import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -41,11 +34,11 @@ public class FfmpegProcessor {
     private final FileRepository fileRepository;
     private final FileProcessingQueueRepository fileProcessingQueueRepository;
 
-    public DashGenerationResult process(File file, FileProcessingQueue fileProcessingQueue, DashStreamConfig dashStreamConfig) {
+    public DashGenerationResult process(FileProcessingQueue fileProcessingQueue, DashStreamConfig dashStreamConfig) {
         // Generating presigned url to give the input to minio
         String mediaPath = minioOperationsHelper.generatePresignedUrl(
-                file.getBucketName(),
-                file.getFileName(),
+                fileProcessingQueue.getBucketName(),
+                fileProcessingQueue.getFileName(),
                 360000);
 
         String outputDir = null;
@@ -63,29 +56,29 @@ public class FfmpegProcessor {
                     dashStreamConfig);
 
             // Executing Dash Stream conversion
-            Long startTime = System.currentTimeMillis();
             FFmpegJob job = ffmpegExecutor.createJob(ffmpegBuilder);
+            log.info("FFmpeg Job Started");
+
+            Long startTime = System.currentTimeMillis();
             job.run();
             Long endTime = System.currentTimeMillis();
             log.info("FFMPEG Job Completed in: {}ms", (endTime - startTime));
 
-            log.info("FFmpeg Job Completed");
-            log.info("Files created are: {}", Arrays.stream(Objects.requireNonNull(new java.io.File(outputDir).listFiles())).toList().stream().map(java.io.File::getName).collect(Collectors.joining(" | ")));
-
             // Uploading all the files to the folder
-            List<String> uploadedFiles = fileStorageService.uploadDirectoryToMinio(file.getPublicId(), outputDir);
-            String mpdUrl = String.format("s3://%s/%s/manifest.mpd", "xyz", file.getPublicId());
+            List<String> uploadedFiles = fileStorageService.uploadDirectoryToMinio(fileProcessingQueue.getPublicId(), outputDir);
+            String mpdUrl = String.format("s3://%s/%s/manifest.mpd", "original", fileProcessingQueue.getPublicId());
 
-            return new DashGenerationResult(mpdUrl, uploadedFiles, probeResult.getFormat().duration, null);
+            return DashGenerationResult.builder()
+                    .fileId(fileProcessingQueue.getFileId())
+                    .mpdUrl(mpdUrl)
+                    .generatedFiles(uploadedFiles)
+                    .duration(probeResult.getFormat().duration)
+                    .success(true).build();
 
         } catch (Exception e) {
-            file.setFileStatus(FileStatus.ERROR);
-            fileProcessingQueue.setStatus(FileProcessingStatus.ERROR);
-            fileProcessingQueue.setInstanceId(null);
-
-            fileRepository.save(file);
-            fileProcessingQueueRepository.save(fileProcessingQueue);
-            throw new ApiException(e.getMessage());
+            return DashGenerationResult.builder()
+                    .fileId(fileProcessingQueue.getFileId())
+                    .message(e.getMessage()).build();
         } finally {
             if (outputDir != null) {
                 fileUtils.cleanupTempDirectory(outputDir);

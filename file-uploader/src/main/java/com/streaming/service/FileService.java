@@ -4,7 +4,7 @@ import com.streaming.crud.MinioOperationsHelper;
 import com.streaming.enums.FileStatus;
 import com.streaming.exception.FileUploadException;
 import com.streaming.exception.ResourceNotFoundException;
-import com.streaming.messaging.FileProcessorQueue;
+import com.streaming.messaging.FileProcessingQueueMessenger;
 import com.streaming.models.File;
 import com.streaming.repository.FileRepository;
 import com.commons.utils.RandomStringGenerator;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class FileService {
     private final FileRepository fileRepository;
     private final MinioOperationsHelper minioOperationsHelper;
-    private final FileProcessorQueue fileProcessorQueue;
+    private final FileProcessingQueueMessenger fileProcessingQueueMessenger;
     @Value("${minio.bucketName}") private String bucketName;
 
     public Page<File> getFiles(Pageable pageable) {
@@ -68,7 +68,7 @@ public class FileService {
                 .isAvailable(false).build();
         File savedFile = fileRepository.save(file);
 
-        if (process) fileProcessorQueue.sendRequestForFileResolutionProcessing(savedFile);
+        if (process) fileProcessingQueueMessenger.sendRequestForFileResolutionProcessing(savedFile);
 
         return savedFile;
     }

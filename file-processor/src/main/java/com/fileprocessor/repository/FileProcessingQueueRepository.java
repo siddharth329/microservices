@@ -13,6 +13,6 @@ import java.util.UUID;
 public interface FileProcessingQueueRepository extends JpaRepository<FileProcessingQueue, UUID> {
     Page<FileProcessingQueue> findAllByStatusIn(Collection<FileProcessingStatus> statuses, Pageable pageable);
     Integer countAllByInstanceIdAndStatusIn(String instanceId, Collection<FileProcessingStatus> statuses);
-    Boolean existsByFile_IdAndStatusIn(UUID fileId, Collection<FileProcessingStatus> statuses);
-    Optional<FileProcessingQueue> findByFile_Id(UUID fileId);
+    Boolean existsByFileIdAndStatusIn(UUID fileId, Collection<FileProcessingStatus> statuses);
+    Optional<FileProcessingQueue> findByFileId(UUID fileId);
 }

@@ -1,25 +1,21 @@
 package com.fileprocessor.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
-@Getter
+@Data
 @AllArgsConstructor
+@Builder
 public class DashGenerationResult {
+    private UUID fileId;
     private String mpdUrl;
     private List<String> generatedFiles;
     private double duration;
     private String thumbnailUrl;
-
-    @Override
-    public String toString() {
-        return "DashGenerationResult{" +
-                "mpdUrl='" + mpdUrl + '\'' +
-                ", generatedFiles=" + generatedFiles +
-                ", duration=" + duration +
-                ", thumbnailUrl='" + thumbnailUrl + '\'' +
-                '}';
-    }
+    private Boolean success;
+    private String message;
 }

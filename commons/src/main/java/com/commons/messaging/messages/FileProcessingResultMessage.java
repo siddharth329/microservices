@@ -12,9 +12,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FileProcessingMessage {
+public class FileProcessingResultMessage {
     private String producer;
     private String consumer;
     private MessageType messageType;
+
     private UUID fileId;
+    private double duration;
+    private String thumbnailUrl;
+    private Boolean success;
+    private String message;
 }

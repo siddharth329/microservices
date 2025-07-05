@@ -1,16 +1,13 @@
 package com.fileprocessor.service;
 
 import com.fileprocessor.crud.MinioOperationsHelper;
-import com.fileprocessor.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +20,8 @@ public class FileStorageService {
 
     public List<String> uploadDirectoryToMinio(String outputPrefix, String directory) throws IOException {
         List<String> uploadedFiles = new ArrayList<>();
+
+        // Deleting all the existing files in the public id folder (outputPrefix) in the bucket
 
         Files
                 .walk(Paths.get(directory))
