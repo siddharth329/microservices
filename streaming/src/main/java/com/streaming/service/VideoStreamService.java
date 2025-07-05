@@ -1,8 +1,8 @@
 package com.streaming.service;
 
 import com.streaming.crud.MinioOperationsHelper;
+import com.streaming.exception.ApiException;
 import com.streaming.models.File;
-import com.streaming.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,7 +13,6 @@ import java.io.InputStream;
 @Service
 @RequiredArgsConstructor
 public class VideoStreamService {
-    private final FileRepository fileRepository;
     private final MinioOperationsHelper minioOperationsHelper;
     private final FileService fileService;
 
@@ -23,9 +22,13 @@ public class VideoStreamService {
     }
 
     public InputStream getChunkFile(String publicId, String fileName) {
-        File file = fileService.getFileByPublicId(publicId);
-        return minioOperationsHelper.getObject(
-                "original",
-                String.format("%s/%s", file.getPublicId(),  fileName));
+        // File file = fileService.getFileByPublicId(publicId);
+        try {
+            return minioOperationsHelper.getObject(
+                    "original",
+                    String.format("%s/%s", publicId,  fileName));
+        } catch (Exception e) {
+            throw new ApiException("Invalid Request");
+        }
     }
 }

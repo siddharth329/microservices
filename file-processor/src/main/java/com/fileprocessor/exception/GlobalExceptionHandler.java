@@ -1,24 +1,15 @@
-package com.streaming.exception;
+package com.fileprocessor.exception;
 
-import com.streaming.response.ApiResponse;
+import com.fileprocessor.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Arrays;
-
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
-        log.info("ResourceNotFoundException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(false, e.getMessage(), null));
-    }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException e) {

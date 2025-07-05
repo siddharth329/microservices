@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface FileRepository extends JpaRepository<File, UUID> {
-    Optional<File> findByPublicIdAndIsAvailable(String publicId, Boolean isAvailable);
+    Optional<File> findByPublicId(String publicId);
 }

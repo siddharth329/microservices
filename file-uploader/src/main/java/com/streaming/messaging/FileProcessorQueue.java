@@ -1,7 +1,7 @@
 package com.streaming.messaging;
 
-import com.commons.enums.MessageType;
-import com.commons.messaging.Message;
+import com.commons.messaging.enums.MessageType;
+import com.commons.messaging.messages.FileProcessingMessage;
 import com.streaming.config.RabbitMQConfig;
 import com.streaming.models.File;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,13 @@ public class FileProcessorQueue {
     @Value("${spring.rabbitmq.queue}") private String queueName;
 
     public void sendRequestForFileResolutionProcessing(File file) {
-        Message message = Message.builder()
+        FileProcessingMessage fileProcessingMessage = FileProcessingMessage.builder()
                 .producer("streaming")
                 .consumer("file-processor")
                 .messageType(MessageType.FILE_PROCESSING_QUEUE_REQUEST)
-                .message(file.getId()).build();
-        System.out.println(message);
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), message);
-        rabbitTemplate.convertAndSend(queueName, message);
+                .fileId(file.getId()).build();
+        System.out.println(fileProcessingMessage);
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getExchangeName(), rabbitMQConfig.getRoutingKey(), fileProcessingMessage);
+        rabbitTemplate.convertAndSend(queueName, fileProcessingMessage);
     }
 }

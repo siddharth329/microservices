@@ -23,7 +23,7 @@ public class File {
     @Column(name = "fileName") private String fileName;
     @Column(name = "contentType") private String contentType;
     @Column(name = "publicId", unique = true) private String publicId;
-    @Column(name = "videoDuration") private Long videoDuration;
+    @Column(name = "videoDuration") private Double videoDuration;
     @Column(name = "size") private Long size;
     @Column(name = "bitrate") private Long bitrate;
     @Column(name = "thumbnail") private String thumbnail;

@@ -1,4 +1,4 @@
-package com.commons.enums;
+package com.commons.messaging.enums;
 
 public enum MessageType {
     FILE_PROCESSING_QUEUE_REQUEST("FILE_PROCESSING_QUEUE_REQUEST");

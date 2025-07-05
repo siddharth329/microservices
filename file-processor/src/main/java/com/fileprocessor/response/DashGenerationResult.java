@@ -1,4 +1,4 @@
-package com.fileprocessor.models;
+package com.fileprocessor.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +11,7 @@ public class DashGenerationResult {
     private String mpdUrl;
     private List<String> generatedFiles;
     private double duration;
+    private String thumbnailUrl;
 
     @Override
     public String toString() {
@@ -18,6 +19,7 @@ public class DashGenerationResult {
                 "mpdUrl='" + mpdUrl + '\'' +
                 ", generatedFiles=" + generatedFiles +
                 ", duration=" + duration +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
                 '}';
     }
 }

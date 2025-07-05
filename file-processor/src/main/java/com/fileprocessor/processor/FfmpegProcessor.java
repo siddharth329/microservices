@@ -2,8 +2,14 @@ package com.fileprocessor.processor;
 
 import com.fileprocessor.config.DashStreamConfig;
 import com.fileprocessor.crud.MinioOperationsHelper;
-import com.fileprocessor.models.DashGenerationResult;
+import com.fileprocessor.enums.FileProcessingStatus;
+import com.fileprocessor.enums.FileStatus;
+import com.fileprocessor.exception.ApiException;
+import com.fileprocessor.repository.FileRepository;
+import com.fileprocessor.response.DashGenerationResult;
 import com.fileprocessor.models.File;
+import com.fileprocessor.models.FileProcessingQueue;
+import com.fileprocessor.repository.FileProcessingQueueRepository;
 import com.fileprocessor.service.DashMPDGeneratorService;
 import com.fileprocessor.service.FileStorageService;
 import com.fileprocessor.utils.FileUtils;
@@ -16,7 +22,6 @@ import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +38,10 @@ public class FfmpegProcessor {
     private final DashMPDGeneratorService dashMPDGeneratorService;
     private final FileStorageService fileStorageService;
     private final FileUtils fileUtils;
+    private final FileRepository fileRepository;
+    private final FileProcessingQueueRepository fileProcessingQueueRepository;
 
-    public DashGenerationResult process(File file, DashStreamConfig dashStreamConfig) {
+    public DashGenerationResult process(File file, FileProcessingQueue fileProcessingQueue, DashStreamConfig dashStreamConfig) {
         // Generating presigned url to give the input to minio
         String mediaPath = minioOperationsHelper.generatePresignedUrl(
                 file.getBucketName(),
@@ -69,13 +76,16 @@ public class FfmpegProcessor {
             List<String> uploadedFiles = fileStorageService.uploadDirectoryToMinio(file.getPublicId(), outputDir);
             String mpdUrl = String.format("s3://%s/%s/manifest.mpd", "xyz", file.getPublicId());
 
-            return new DashGenerationResult(mpdUrl, uploadedFiles, probeResult.getFormat().duration);
+            return new DashGenerationResult(mpdUrl, uploadedFiles, probeResult.getFormat().duration, null);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            file.setFileStatus(FileStatus.ERROR);
+            fileProcessingQueue.setStatus(FileProcessingStatus.ERROR);
+            fileProcessingQueue.setInstanceId(null);
+
+            fileRepository.save(file);
+            fileProcessingQueueRepository.save(fileProcessingQueue);
+            throw new ApiException(e.getMessage());
         } finally {
             if (outputDir != null) {
                 fileUtils.cleanupTempDirectory(outputDir);

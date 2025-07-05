@@ -5,18 +5,15 @@ import com.fileprocessor.crud.MinioOperationsHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
-import net.bramp.ffmpeg.options.VideoEncodingOptions;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class DashMPDGeneratorService {
-    private final MinioOperationsHelper minioOperationsHelper;
 
     public FFmpegBuilder generateDashStreamFFmpegBuilder(String mediaPath, String outputDir, DashStreamConfig dashStreamConfig) {
 
@@ -40,11 +37,6 @@ public class DashMPDGeneratorService {
         AtomicInteger streamIndex = new AtomicInteger(0);
         for (DashStreamConfig.VideoProfile profile: dashStreamConfig.getVideoProfiles()) {
             ffmpegBuilder
-                    //.addOutput(String.format("\"%s\"", manifestPath))
-                    // .setVideoCodec("libx264")
-                    // .setVideoResolution(profile.getWidth(), profile.getHeight())
-                    // .setVideoBitRate(profile.getBitrate())
-                    // .setVideoFrameRate(profile.getFrameRate())
                     .addExtraArgsEnd("-vcodec", "libx264")
                     .addExtraArgsEnd("-profile:v:" + streamIndex.get(), profile.getProfile())
                     .addExtraArgsEnd("-level:v:" + streamIndex.get(), "3.1")

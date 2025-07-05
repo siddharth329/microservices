@@ -28,7 +28,7 @@ public class FileUtils {
 
     public String createTempDirectory() throws IOException {
         String uniqueId = UUID.randomUUID().toString();
-        Path tempPath = Paths.get(tempDirectory, "dash-" + uniqueId);
+        Path tempPath = Paths.get(tempDirectory, uniqueId);
         Files.createDirectories(tempPath);
         return tempPath.toString();
     }

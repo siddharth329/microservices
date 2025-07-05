@@ -33,18 +33,28 @@ public class FileController {
         return ResponseEntity.ok(new ApiResponse("Success", file));
     }
 
-    @DeleteMapping("/:id")
-    public void delete(@RequestParam UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         fileService.deleteFile(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse> uploadFile(
             @RequestParam("name") String name,
-            @RequestParam("file") MultipartFile uploadedFile) {
-        File file = fileService.uploadFile(name, uploadedFile);
+            @RequestParam("file") MultipartFile uploadedFile,
+            @RequestParam("process") Boolean process) {
+        File file = fileService.uploadFile(name, uploadedFile, process);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ApiResponse("Uploaded Successfully", file));
+    }
+
+    @PostMapping("/setAvailability/{id}")
+    public ResponseEntity<ApiResponse> setAvailability(
+            @PathVariable UUID id,
+            @RequestParam("isAvailable") Boolean isAvailable) {
+        File file = fileService.setFileAvailability(id, isAvailable);
+        return ResponseEntity.ok(new ApiResponse("Success", file));
     }
 }

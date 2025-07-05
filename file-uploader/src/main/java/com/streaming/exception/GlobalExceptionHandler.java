@@ -13,6 +13,20 @@ import java.util.Arrays;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ApiResponse> handleFileUploadException(FileUploadException e) {
+        log.error("FileUploadException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse(false, e.getMessage(), null));
+    }
+
+    @ExceptionHandler(FileDeleteException.class)
+    public ResponseEntity<ApiResponse> handleFileDeleteException(FileDeleteException e) {
+        log.error("FileDeleteException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse(false, e.getMessage(), null));
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
         log.info("ResourceNotFoundException: {}", e.getMessage());
