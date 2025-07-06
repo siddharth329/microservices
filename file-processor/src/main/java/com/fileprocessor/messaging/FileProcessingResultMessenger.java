@@ -19,6 +19,7 @@ public class FileProcessingResultMessenger {
                 .producer("file-processor")
                 .consumer("file-uploader")
                 .messageType(MessageType.FILE_PROCESSING_RESULT_RESPONSE)
+                .fileId(dashGenerationResult.getFileId())
                 .success(dashGenerationResult.getSuccess())
                 .message(dashGenerationResult.getMessage())
                 .thumbnailUrl(dashGenerationResult.getThumbnailUrl())

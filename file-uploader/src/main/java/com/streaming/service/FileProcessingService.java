@@ -32,6 +32,7 @@ public class FileProcessingService {
     }
 
     public void updateFileStatusAfterProcessing(FileProcessingResultMessage fileProcessingResultMessage) {
+        assert fileProcessingResultMessage.getFileId() != null;
         File file = fileService.getFile(fileProcessingResultMessage.getFileId());
 
         if (fileProcessingResultMessage.getSuccess()) {

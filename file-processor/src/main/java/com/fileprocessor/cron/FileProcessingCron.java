@@ -45,6 +45,7 @@ public class FileProcessingCron {
             fileProcessingQueueRepository
                     .findAllByStatusIn(executionStatusToPick, pageable)
                     .getContent()
+                    .parallelStream()
                     .forEach(fileProcessingService::processFile);
         }
     }
